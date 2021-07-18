@@ -42,6 +42,31 @@ Beckhoff_Communication_Service::~Beckhoff_Communication_Service()
     // ? free variables
 };
 
+//
+// params:
+// return: true if slaves are operational
+bool Beckhoff_Communication_Service::set_slaves_up()
+{
+    try {
+        ec_config_map(&IOMap);
+        ec_send_processdata();
+        wck = ec_receive_processdata(EC_TIMEOUTRET);
+        ec_writestate(0);
+        ec_statecheck(0, EC_STATE_OPERATIONAL,  EC_TIMEOUTSTATE);
+
+        // ? this two next lines
+        wck = ec_receive_processdata(EC_TIMEOUTRET);
+		expectedWck = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
+
+        return true;
+
+    } catch (int err) {
+        // cout << err << endl;
+        return false;
+    }
+    
+}
+
 
 //
 // return:  1 (success)
@@ -150,27 +175,3 @@ bool write_digital_outputs()
     return true;
 }
 
-//
-// params:
-// return: true if slaves are operational
-bool set_slaves_up()
-{
-    try {
-        ec_config_map(&IOMap);
-        ec_send_processdata();
-        wck = ec_receive_processdata(EC_TIMEOUTRET);
-        ec_writestate(0);
-        ec_statecheck(0, EC_STATE_OPERATIONAL,  EC_TIMEOUTSTATE);
-
-        // ? this two next lines
-        wkc = ec_receive_processdata(EC_TIMEOUTRET);
-		expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
-
-        return true;
-
-    } catch (int err) {
-        // cout << err << endl;
-        return false;
-    }
-    
-}
