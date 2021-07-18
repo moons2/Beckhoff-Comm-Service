@@ -15,7 +15,7 @@ int expectedWck;
 
 // constructor method that performs the initial configurations before apply
 // the connections between toradex - beckhoff.
-// in the future, we can make the module positions dinamic
+// in the future, we can make the module positions dinamic not fixed
 //
 //
 Beckhoff_Communication_Service::Beckhoff_Communication_Service()
@@ -43,7 +43,6 @@ Beckhoff_Communication_Service::~Beckhoff_Communication_Service()
 };
 
 
-//
 //
 // return:  1 (success)
 //          2 (network card problems)
@@ -85,6 +84,11 @@ int Beckhoff_Communication_Service::beckhoff_connect()
                      << endl;
                 return 4;
             }
+
+            if(not set_slaves_up()){
+                // something went wrong durint set_slaves_up
+                return 5;
+            }
         
             // SUCCESS
             return 1;
@@ -118,6 +122,7 @@ bool Beckhoff_Communication_Service::beckhoff_disconnect()
     try {
         // close ethercat communication socket
         ec_close();
+        // call ~Beckhoff_Communication_Service
         return true;
 
     } catch (int err) {
@@ -127,16 +132,45 @@ bool Beckhoff_Communication_Service::beckhoff_disconnect()
     
 }
 
+//
+//
+//
 void read_digital_inputs()
 {
+    wck = ec_receive_processdata(EC_TIMEOUTRET);
 
 }
 
 //
-//
-//
+// params: ? slaveIntAddress and value or int to be written?
+// return: true if success
 bool write_digital_outputs()
 {
     // SUCCESS
     return true;
+}
+
+//
+// params:
+// return: true if slaves are operational
+bool set_slaves_up()
+{
+    try {
+        ec_config_map(&IOMap);
+        ec_send_processdata();
+        wck = ec_receive_processdata(EC_TIMEOUTRET);
+        ec_writestate(0);
+        ec_statecheck(0, EC_STATE_OPERATIONAL,  EC_TIMEOUTSTATE);
+
+        // ? this two next lines
+        wkc = ec_receive_processdata(EC_TIMEOUTRET);
+		expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
+
+        return true;
+
+    } catch (int err) {
+        // cout << err << endl;
+        return false;
+    }
+    
 }

@@ -44,7 +44,6 @@ typedef struct
     char beckhoffAnalogModuleName[TAM_BECKHOFF_NAME_MODULE];
     char networkBoardName[TAM_BECKHOFF_NAME_MODULE];
 
-    // ? is it a good practice
 } Ethercat;
 
 class Beckhoff_Communication_Service
@@ -56,9 +55,6 @@ class Beckhoff_Communication_Service
 		Beckhoff_Communication_Service(); //constructor
 		~Beckhoff_Communication_Service(); //destructor
 
-		// bool verifyCommunicationStatus();
-		// int configurar_ethercat (Ethercat ethercat);
-
         //
         // return: 1 for success; 2 for  ; 3 for 
         int beckhoff_connect();
@@ -68,20 +64,39 @@ class Beckhoff_Communication_Service
         // return: true (connection open); false other
         bool verify_communication_status();
 
+        //
+        //
+        //
         bool beckhoff_disconnect();
 
-        void set_slaves_up();
+        //
+        //
+        //
+        bool set_slaves_up();
 
+        //
+        //
+        //
         bool read_digital_inputs();
 
+        //
+        //
+        //
         void write_digital_outputs();
 
+        //
+        //
+        //
         bool read_analog_inputs();
 
+        //
+        //
+        //
         void write_analog_outputs();
 
 };
 
 
+// CONTANTS ERRORS
 
 #endif
