@@ -14,6 +14,7 @@ extern "C"
 	#include "../../../libethercat/ethercat.h" //interface da lib ethercat codificada em C
 }
 
+
 #define EC_TIMEOUTMON               500
 #define NUM_BECKHOFF_COMPONENTS     16
 #define TAM_BECKHOFF_NAME_MODULE    15 // number of chars max of the Beckhoff module
