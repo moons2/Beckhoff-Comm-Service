@@ -135,8 +135,8 @@ int Beckhoff_Communication_Service::beckhoff_connect()
 //
 bool Beckhoff_Communication_Service::verify_communication_status()
 {
-    cout << "verify_communication_status okay" << endl;
-    return true;
+    // If I got connected and disconnected successfullly, return true
+    return beckhoff_connect() and beckhoff_disconnect();
 }
 
 //
@@ -157,12 +157,54 @@ bool Beckhoff_Communication_Service::beckhoff_disconnect()
     
 }
 
-//
+// this method read all digital inputs and
+// saves
 //
 //
 void read_digital_inputs()
-{
+{   // work better to reduce this method
     wck = ec_receive_processdata(EC_TIMEOUTRET);
+
+    int *data_ptr;
+
+	data_ptr = &inputsBeckhoff;
+
+	int valorLido = *data_ptr;
+	
+	for(int i=0; i<8; i++){
+		if(valorLido > 1){ 
+			int bit = valorLido%2; 
+			sinaisInput[i] = bit; 
+			valorLido = valorLido/2;
+		}
+
+		else if(valorLido == 1){
+			sinaisInput[i] = 1;
+			valorLido = 0;
+		}
+		else if(valorLido == 0){
+			sinaisInput[i] = 0;
+		}
+	}
+	
+	data_ptr++; 
+
+	
+	for(int i=8; i<16; i++){
+		if(valorLido > 1){ 
+			int bit = valorLido%2; 
+			sinaisInput[i] = bit;
+			valorLido = valorLido/2;
+			
+		}
+		else if(valorLido == 1){
+			sinaisInput[i] = 1;
+			valorLido = 0;
+		}
+		else if(valorLido == 0){
+			sinaisInput[i] = 0;
+		}
+	}
 
 }
 

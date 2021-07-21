@@ -21,11 +21,11 @@ extern "C"
 #define CURR_GROUP                  0
 
 
-#define NETW_BOARD_NAME                 "eth0"
-#define ACOPLADOR                       "EK1100"
-#define DIGITAL_INPUT_MODULE            "EL1809"
-#define DIGITAL_OUTPUT_MODULE           "EL2809"
-#define ANALOG_MODULE                   "EL4002"
+#define NETW_BOARD_NAME             "eth0"
+#define ACOPLADOR                   "EK1100"
+#define DIGITAL_INPUT_MODULE        "EL1809"
+#define DIGITAL_OUTPUT_MODULE       "EL2809"
+#define ANALOG_MODULE               "EL4002"
 
 #define ANALOG_PROPORTIONAL_CONST   0.000305625
 
@@ -95,6 +95,10 @@ class Beckhoff_Communication_Service
         //
         void write_analog_outputs();
 
+        //
+        //
+        //
+        bool read_pin_digital_input(int pin);
 };
 
 
