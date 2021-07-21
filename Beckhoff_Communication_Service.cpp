@@ -163,6 +163,7 @@ bool Beckhoff_Communication_Service::beckhoff_disconnect()
 //
 void read_digital_inputs()
 {   // work better to reduce this method
+    // apply software pattern too
     wck = ec_receive_processdata(EC_TIMEOUTRET);
 
     int *data_ptr;
@@ -174,16 +175,16 @@ void read_digital_inputs()
 	for(int i=0; i<8; i++){
 		if(valorLido > 1){ 
 			int bit = valorLido%2; 
-			sinaisInput[i] = bit; 
+			inputSignals[i] = bit; 
 			valorLido = valorLido/2;
 		}
 
 		else if(valorLido == 1){
-			sinaisInput[i] = 1;
+			inputSignals[i] = 1;
 			valorLido = 0;
 		}
 		else if(valorLido == 0){
-			sinaisInput[i] = 0;
+			inputSignals[i] = 0;
 		}
 	}
 	
@@ -193,16 +194,16 @@ void read_digital_inputs()
 	for(int i=8; i<16; i++){
 		if(valorLido > 1){ 
 			int bit = valorLido%2; 
-			sinaisInput[i] = bit;
+			inputSignals[i] = bit;
 			valorLido = valorLido/2;
 			
 		}
 		else if(valorLido == 1){
-			sinaisInput[i] = 1;
+			inputSignals[i] = 1;
 			valorLido = 0;
 		}
 		else if(valorLido == 0){
-			sinaisInput[i] = 0;
+			inputSignals[i] = 0;
 		}
 	}
 
