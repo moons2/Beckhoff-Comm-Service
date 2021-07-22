@@ -133,9 +133,13 @@ int Beckhoff_Communication_Service::beckhoff_connect(bool ping = false)
 }
 
 
-//
-//
-//
+// melhor se verificar se a conexão já está estabelecida
+// ao invés de conectar e desconectar
+// 
+// conexao aberta, fechada, ausencia de cards
+// ? teste de estado
+//      se correto -> 1
+//      otherwise ->  codigo do erro para depuração negativos
 bool Beckhoff_Communication_Service::verify_communication_status()
 {
     // If I got connected and disconnected successfullly, return true

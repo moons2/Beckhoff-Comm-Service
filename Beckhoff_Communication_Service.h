@@ -78,7 +78,7 @@ class Beckhoff_Communication_Service
         //
         //
         //
-        void read_digital_inputs();
+        bool read_digital_inputs(int pin);
 
         //
         //
