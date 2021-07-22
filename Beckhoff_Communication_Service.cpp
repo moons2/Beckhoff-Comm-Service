@@ -68,18 +68,21 @@ bool Beckhoff_Communication_Service::set_slaves_up()
 }
 
 
-//
 // return:  1 (success)
 //          2 (network card problems)
 //          3 (slaves problems)
 //          4 (cards problems)
-int Beckhoff_Communication_Service::beckhoff_connect()
+int Beckhoff_Communication_Service::beckhoff_connect(bool ping = false)
 {
     // consider replace this if by a try-catch
     if(ec_init(remota.networkBoardName)){
 
         // wouldn't if (ec_config_init(FALSE)) produce de same result?
-        if(ec_config_init(FALSE) > 0){
+        if(ec_config_init(FALSE)){
+
+            // Beckhoff found! not necessary to continue
+            if(ping)
+                return true;
 
             // verifying each module...
             if(strcmp(ec_slave[1].name, ACOPLADOR)){
@@ -111,7 +114,7 @@ int Beckhoff_Communication_Service::beckhoff_connect()
             }
 
             if(not set_slaves_up()){
-                // something went wrong durint set_slaves_up
+                // something went wrong during set_slaves_up
                 return 5;
             }
         
@@ -136,7 +139,7 @@ int Beckhoff_Communication_Service::beckhoff_connect()
 bool Beckhoff_Communication_Service::verify_communication_status()
 {
     // If I got connected and disconnected successfullly, return true
-    return beckhoff_connect() and beckhoff_disconnect();
+    return beckhoff_connect(true) and beckhoff_disconnect();
 }
 
 //
@@ -190,7 +193,6 @@ void read_digital_inputs()
 	
 	data_ptr++; 
 
-	
 	for(int i=8; i<16; i++){
 		if(valorLido > 1){ 
 			int bit = valorLido%2; 

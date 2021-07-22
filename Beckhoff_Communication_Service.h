@@ -38,7 +38,7 @@ typedef struct
     bool outputSignals[NUM_BECKHOFF_COMPONENTS];
     int inputSignals[NUM_BECKHOFF_COMPONENTS];
 
-    // the bewlow values were inserted manually, now they
+    // the below values were inserted manually, now they
     // they will be consts in the final value
     char beckhoffInputModuleName[TAM_BECKHOFF_NAME_MODULE];
     char beckhoffOutupModuleName[TAM_BECKHOFF_NAME_MODULE];
@@ -58,7 +58,7 @@ class Beckhoff_Communication_Service
 
         //
         // return: 1 for success; 2 for  ; 3 for 
-        int beckhoff_connect();
+        int beckhoff_connect(bool ping = false);
 
         //
         //
@@ -78,7 +78,7 @@ class Beckhoff_Communication_Service
         //
         //
         //
-        bool read_digital_inputs();
+        void read_digital_inputs();
 
         //
         //
