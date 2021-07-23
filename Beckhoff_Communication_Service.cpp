@@ -82,7 +82,7 @@ int Beckhoff_Communication_Service::beckhoff_connect(bool ping = false)
 
             // Beckhoff found! not necessary to continue
             if(ping)
-                return true;
+                return 1;
 
             // verifying each module...
             if(strcmp(ec_slave[1].name, ACOPLADOR)){
@@ -122,11 +122,17 @@ int Beckhoff_Communication_Service::beckhoff_connect(bool ping = false)
             return 1;
 
         } else {
+            if(ping){
+                return 0;
+            }
             return 3;
         }
 
     } else {
         // network board connection problem
+        if(ping){
+            return 0;
+        }
         return 2;
     }
 
@@ -168,51 +174,29 @@ bool Beckhoff_Communication_Service::beckhoff_disconnect()
 // saves
 //
 //
-void read_digital_inputs()
+bool Beckhoff_Communication_Service::read_digital_inputs(int pin)
 {   // work better to reduce this method
     // apply software pattern too
+
+    //
     wck = ec_receive_processdata(EC_TIMEOUTRET);
 
-    int *data_ptr;
+    uint8* inputPtr = ec_slave[remota.terminalPositionIn].inputs;
 
-	data_ptr = &inputsBeckhoff;
-
-	int valorLido = *data_ptr;
-	
-	for(int i=0; i<8; i++){
-		if(valorLido > 1){ 
-			int bit = valorLido%2; 
-			inputSignals[i] = bit; 
-			valorLido = valorLido/2;
-		}
-
-		else if(valorLido == 1){
-			inputSignals[i] = 1;
-			valorLido = 0;
-		}
-		else if(valorLido == 0){
-			inputSignals[i] = 0;
-		}
-	}
-	
-	data_ptr++; 
-
-	for(int i=8; i<16; i++){
-		if(valorLido > 1){ 
-			int bit = valorLido%2; 
-			inputSignals[i] = bit;
-			valorLido = valorLido/2;
-			
-		}
-		else if(valorLido == 1){
-			inputSignals[i] = 1;
-			valorLido = 0;
-		}
-		else if(valorLido == 0){
-			inputSignals[i] = 0;
-		}
+    if(pin > 8){
+		pin = (pin % 9) + 1;
+        inputPtr++;
+		// increments valor_lido para o proimo byte
 	}
 
+	unsigned char beckhofPinsValue = (unsigned char)* inputPtr;
+	
+	unsigned char mask = pow(2,(pin - 1));
+	
+	// b'00010100 = 5
+	// b'00000100 = 1
+	// b'00000100 = 4
+	return (beckhofPinsValue & mask);
 }
 
 //

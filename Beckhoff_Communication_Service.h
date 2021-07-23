@@ -58,7 +58,7 @@ class Beckhoff_Communication_Service
 
         //
         // return: 1 for success; 2 for  ; 3 for 
-        int beckhoff_connect(bool ping = false);
+        int beckhoff_connect(bool);
 
         //
         //
