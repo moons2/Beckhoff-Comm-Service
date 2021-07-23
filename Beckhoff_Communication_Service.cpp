@@ -187,16 +187,24 @@ bool Beckhoff_Communication_Service::read_digital_inputs(int pin)
 		pin = (pin % 9) + 1;
         inputPtr++;
 		// increments valor_lido para o proimo byte
-	}
+    }
 
-	unsigned char beckhofPinsValue = (unsigned char)* inputPtr;
+    unsigned char beckhofPinsValue = (unsigned char)* inputPtr;
+
+    unsigned char mask = pow(2,(pin - 1));
+
+    // b'00010100 = 5
+    // b'00000100 = 1
+    // b'00000100 = 4
 	
-	unsigned char mask = pow(2,(pin - 1));
-	
-	// b'00010100 = 5
-	// b'00000100 = 1
-	// b'00000100 = 4
-	return (beckhofPinsValue & mask);
+    /* //verify logic operation and return true or false
+    if ((beckhoffPinsValue & mask) == mask){
+    	return true;
+    }
+    
+    return false;
+    */
+    return (beckhofPinsValue & mask);
 }
 
 //
