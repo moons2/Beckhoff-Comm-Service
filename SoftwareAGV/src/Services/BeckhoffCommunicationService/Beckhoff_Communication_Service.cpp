@@ -356,3 +356,45 @@ void Beckhoff_Communication_Service::write_digital_output(int pin, bool signal)
 	ec_send_processdata(); // enviando o dado para o IOmap (remota)
 }
 
+void Beckhoff_Communication_Service::write_analog_output(bool channel, int voltage){
+//void Beckhoff_Communication_service::writes_motors_voltage(int voltageM1, int voltageM2){
+	//garante tensão entre 0 e 24v
+	if(voltage > 24)
+		voltage = 24;
+	else if (voltage < 0)
+		voltage = 0;
+	
+	/*Se a resolução for de 12 bits:
+	Valores variam de 0 a 4095
+	 24[v] * x = 4095  => x = 170.625*/
+	uint16 voltage16 = voltage * 170.625;
+
+	//cout << tensao16 << endl;
+	/*Se a resolução for de 16 bits:
+	Valores variam de 0 a 65535
+	24[v] * x = 65535  => x = 2730.625*/
+   	//__uint16_t tensao16 = tensao * 2730.625;
+	
+	//aponta para estrutura de dados que diz respeito aos terminais de saída analógica
+	uint8 *data_ptr = ec_slave[remota.terminalPositionAnalog].outputs;
+	
+	// | byte1 | byte2 | byte3 | byte4 | 
+	// | M1 - Channel 0| M2 - Channel 1|
+
+   	/* Move pointer to correct module index
+	Motor do pino 1: canal 0
+	Motor do pino 2: canal 1
+	Como cada motor recebe dois bytes como referência para a tensão,
+	Deve-se incrementar o ponteiro em dois bytes quando se desejar escrever no canal 2, já que os 4 bytes referentes aos valores de ambos motores são adjacentes
+	*/
+	data_ptr += channel* 2;
+	cout << data_ptr << endl;
+
+	*data_ptr = voltage16; //escreve 8 bits menos significativos
+	//cout << +*data_ptr << endl;
+	data_ptr++;
+	*data_ptr = (voltage16 >> 8); //shift à direita para escrever 8 bits mais significativos
+	//cout << +*data_ptr << endl;
+    ec_send_processdata(); // enviando o dado para o IOmap (remota)
+	
+}

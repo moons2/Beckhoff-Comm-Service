@@ -3,7 +3,7 @@
 // to be used by all software that make use of communication service with Beckhoff
 
 // EL1809 - Digital Inputs Module
-// assigns pin from the EL1809 module to the position of the corruption bit 
+// assigns pin from the EL1809 module to the position of the corresponding bit 
 #define IN_PHOTOELTRIC_SENSOR_1 0 //Sensor Fotoeletrico 1 - PINO 1
 #define IN_PHOTOELTRIC_SENSOR_2 1 //Sensor Fotoeletrico 2 - PINO 2
 #define IN_PISTON_SENSOR 2 //Sensor Pistão - PINO 3
@@ -23,7 +23,7 @@
 
 
 // EL2809 - Digital Outputs Module
-// assigns pin from the EL2809 module to the position of the corruption bit 
+// assigns pin from the EL2809 module to the position of the corresponding bit 
 #define OUT_PIN_1 0 //livre
 #define OUT_PIN_2 1 //Dig In motor 1 motor da direita ou da esquerda? - PINO 2
 #define OUT_PIN_3 2 //Dig In motor 1 - PINO 3
@@ -40,3 +40,8 @@
 #define OUT_LED_BLUE 13 //Led canal blue - PINO 14
 #define OUT_PIN_15 14 //livre
 #define OUT_PIN_16 15 //livre
+
+// EL4002 - Analog Outputs Module
+// assigns pin from the EL4002 module to the corresponding channel
+#define ANALOG_MOTOR_M1 0 //left or right? ANALOG_MOTOR_LEFT
+#define ANALOG_MOTOR_M2 1

@@ -94,12 +94,12 @@ class Beckhoff_Communication_Service
         //
         //
         //
-        bool read_analog_inputs();
+        bool read_analog_input();
 
         //
         //
         //
-        void write_analog_outputs();
+        void write_analog_output(bool channel, int voltage);
 };
 
 
