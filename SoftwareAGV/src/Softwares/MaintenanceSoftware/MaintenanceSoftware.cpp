@@ -29,12 +29,13 @@ MaintenanceSoftware::~MaintenanceSoftware(){ //destructor
 
 void MaintenanceSoftware::Run(){
     bool stopBtn;
-    bool cameraLamp;
+    //bool cameraLamp;
     
     bool isConnected = beckhoffCommunication->verify_communication_status();
 
     if(isConnected){
         cout << "Toradex - Beckhoff connected successfully! \n";
+        beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0); //turn off camera lamp
         stopBtn = beckhoffCommunication->read_digital_input(IN_STOP_BTN);
         
         while(stopBtn){ //Floor Camera Lamp 
