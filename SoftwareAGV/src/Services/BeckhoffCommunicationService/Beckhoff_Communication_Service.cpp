@@ -452,9 +452,10 @@ void Beckhoff_Communication_Service::write_engines_voltage(int speedPercentageM1
 	else if (speedPercentageM2 < 0)
 		speedPercentageM2 = 0;
 
-	// |   voltage M1  |   voltage M2  |
-	// | byte1 | byte2 | byte3 | byte4 | 
+	// |speedPercentageM1|speedPercentageM2|
+	// |  byte1 |  byte2 |  byte3 |  byte4 | 
 	//  ^data_ptr
+	//  		 ^data_ptr++
 	
 	//aponta para estrutura de dados que deve receber os sinais dos terminais de saída analógica
 	uint8 *data_ptr = ec_slave[remota.terminalPositionAnalog].outputs; //Aponta para o byte 1
@@ -463,29 +464,31 @@ void Beckhoff_Communication_Service::write_engines_voltage(int speedPercentageM1
 	/*Se a resolução for de 12 bits:
 	Valores variam de 0 a 4095
 	 100 * x = 4095  => x = 40.95*/
-	uint16 voltage16 = speedPercentageM1 * 40.95; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
+	uint16 speedPercentage16 = speedPercentageM1 * 40.95; //converte velocidade de 0 - 100 em um numero de 0 a 4095 correspondente
 
 	/*Se a resolução for de 16 bits:
 	Valores variam de 0 a 65535
 	100 * x = 65535  => x = 655.35*/
-   	//__uint16_t tensao16 = tensao * 655.35;
+   	//uint16 speedPercentage16 = speedPercentageM1 * 655.35; //converte velocidade de 0 - 100 em um numero de 0 a 65535 correspondente
 
-	*data_ptr = voltage16; //escreve 8 bits menos significativos no byte 1
+	*data_ptr = speedPercentage16; //escreve 8 bits menos significativos no byte 1
 	data_ptr++; //Aponta para o byte 2
-	*data_ptr = (voltage16 >> 8); //shift à direita para escrever 8 bits mais significativos no byte 2
+	*data_ptr = (speedPercentage16 >> 8); //shift à direita para escrever 8 bits mais significativos no byte 2
 
 	/*
-	Como cada motor recebe dois bytes como referência para a tensão,
+	Como cada motor recebe dois bytes como referência para a velocidade,
 	Deve-se incrementar o ponteiro em dois bytes quando se desejar escrever no motor M2, 
 	já que os 4 bytes referentes aos valores de ambos motores são adjacentes
 	*/
 	//---------Escrevendo tensão do motor M2----------------------
 	data_ptr ++; //Apontando para o byte 3
-	voltage16 = speedPercentageM2 * 170.625; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
-	
-	*data_ptr = voltage16; //escreve 8 bits menos significativos no byte 3
+	speedPercentage16 = speedPercentageM2 * 40.95; //converte velocidade de 0 - 100 em um numero de 0 a 4095 correspondente
+	//----Se resolução for de 16 bits-------
+	//speedPercentage16 = speedPercentageM2 * 655.35; //converte velocidade de 0 - 100 em um numero de 0 a 65535 correspondente
+
+	*data_ptr = speedPercentage16; //escreve 8 bits menos significativos no byte 3
 	data_ptr++; //Apontando para o byte 4
-	*data_ptr = (voltage16 >> 8); //shift à direita para escrever 8 bits mais significativos no byte 4
+	*data_ptr = (speedPercentage16 >> 8); //shift à direita para escrever 8 bits mais significativos no byte 4
 
     ec_send_processdata(); // enviando o dado para o IOmap (remota)
 	
