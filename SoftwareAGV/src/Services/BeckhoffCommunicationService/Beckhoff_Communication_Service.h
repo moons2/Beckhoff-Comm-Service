@@ -99,8 +99,8 @@ class Beckhoff_Communication_Service
         //
         //
         //
-        void write_analog_output(bool channel, int voltage);
-        void write_motors_voltage(int voltageM1, int voltageM2);
+        //void write_analog_output(bool channel, int voltage);
+        void write_engines_voltage(int speedPercentageM1, int speedPercentageM2);
 };
 
 

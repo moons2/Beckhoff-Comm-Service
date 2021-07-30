@@ -436,20 +436,21 @@ void Beckhoff_Communication_Service::write_analog_output(bool channel, int volta
 	
 }*/
 
-void Beckhoff_Communication_Service::write_motors_voltage(int voltageM1, int voltageM2){
+//escreve nas duas saídas analógicas (Motores M1 e M2) de uma vez só
+void Beckhoff_Communication_Service::write_engines_voltage(int speedPercentageM1, int speedPercentageM2){
 	//Verificar qual é o motor da direita e qual é o motor da esquerda e alterar nome do parâmetro. Ex.:
 	//voltageM1 = voltageMotorLeft
 	
-	//garante tensão entre 0 e 24v
-	if(voltageM1 > 24)
-		voltageM1 = 24;
-	else if (voltageM1 < 0)
-		voltageM1 = 0;
+	//garante velocidade de 0 a 100% nos motores
+	if(speedPercentageM1 > 100)
+		speedPercentageM1 = 100;
+	else if (speedPercentageM1 < 0)
+		speedPercentageM1 = 0;
 
-	if(voltageM2 > 24)
-		voltageM2 = 24;
-	else if (voltageM2 < 0)
-		voltageM2 = 0;
+	if(speedPercentageM2 > 100)
+		speedPercentageM2 = 100;
+	else if (speedPercentageM2 < 0)
+		speedPercentageM2 = 0;
 
 	// |   voltage M1  |   voltage M2  |
 	// | byte1 | byte2 | byte3 | byte4 | 
@@ -461,13 +462,13 @@ void Beckhoff_Communication_Service::write_motors_voltage(int voltageM1, int vol
 	//---------Escrevendo tensão do motor M1-------------------
 	/*Se a resolução for de 12 bits:
 	Valores variam de 0 a 4095
-	 24[v] * x = 4095  => x = 170.625*/
-	uint16 voltage16 = voltageM1 * 170.625; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
+	 100 * x = 4095  => x = 40.95*/
+	uint16 voltage16 = speedPercentageM1 * 40.95; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
 
 	/*Se a resolução for de 16 bits:
 	Valores variam de 0 a 65535
-	24[v] * x = 65535  => x = 2730.625*/
-   	//__uint16_t tensao16 = tensao * 2730.625;
+	100 * x = 65535  => x = 655.35*/
+   	//__uint16_t tensao16 = tensao * 655.35;
 
 	*data_ptr = voltage16; //escreve 8 bits menos significativos no byte 1
 	data_ptr++; //Aponta para o byte 2
@@ -480,7 +481,7 @@ void Beckhoff_Communication_Service::write_motors_voltage(int voltageM1, int vol
 	*/
 	//---------Escrevendo tensão do motor M2----------------------
 	data_ptr ++; //Apontando para o byte 3
-	voltage16 = voltageM2 * 170.625; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
+	voltage16 = speedPercentageM2 * 170.625; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
 	
 	*data_ptr = voltage16; //escreve 8 bits menos significativos no byte 3
 	data_ptr++; //Apontando para o byte 4

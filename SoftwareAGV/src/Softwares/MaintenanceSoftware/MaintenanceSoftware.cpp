@@ -30,8 +30,8 @@ MaintenanceSoftware::~MaintenanceSoftware(){ //destructor
 
 void MaintenanceSoftware::Run(){ //Run in loop at Super Main
 
-    int voltageM1 = 19, //tensão do motor M1 em volts
-        voltageM2 = 19; //tensão do motor M2 em volts
+    int speedPercentageM1  = 90, //90% da velocidade dos motores
+        speedPercentageM2 = 90; //90% da velocidade dos motores
     
     bool isConnected = beckhoffCommunication->verify_communication_status();
 
@@ -47,7 +47,7 @@ void MaintenanceSoftware::Run(){ //Run in loop at Super Main
             //girar ambos os motores no sentido horário*, *verificar se a rotação será horária ou anti horária
             beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, 0);
             beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, 0);
-            beckhoffCommunication->write_motors_voltage(voltageM1, voltageM2);
+            beckhoffCommunication->write_engines_voltage(speedPercentageM1, speedPercentageM2);
 
             //----------PISCA LAMPADA DA CAMERA------------------------------------------------
             beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 1);
@@ -64,7 +64,7 @@ void MaintenanceSoftware::Run(){ //Run in loop at Super Main
             //girar ambos os motores no sentido anti horário*, *verificar se a rotação será horária ou anti horária
             beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, 1);
             beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, 1);
-            beckhoffCommunication->write_motors_voltage(voltageM1, voltageM2);
+            beckhoffCommunication->write_engines_voltage(speedPercentageM1, speedPercentageM2);
 
             //turn off camera Lamp
             beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0);

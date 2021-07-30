@@ -50,6 +50,6 @@ void Facade_Beckhoff_Communication_Service::write_digital_output(int pin, bool s
 //
 //
 //
-void Facade_Beckhoff_Communication_Service::write_motors_voltage(int voltageM1, int voltageM2){
-    return beckhoffService->write_motors_voltage(voltageM1, voltageM2);
+void Facade_Beckhoff_Communication_Service::write_engines_voltage(int speedPercentageM1, int speedPercentageM2){
+    return beckhoffService->write_engines_voltage(speedPercentageM1, speedPercentageM2);
 }
