@@ -84,12 +84,12 @@ class Beckhoff_Communication_Service
         //
         //
         //
-        bool read_digital_input(int pin);
+        bool read_digital_input(int pinAddr);
 
         //
         //
         //
-        void write_digital_output(int pin, bool signal);
+        void write_digital_output(int pinAddr, bool signal);
 
         //
         //
@@ -100,6 +100,7 @@ class Beckhoff_Communication_Service
         //
         //
         void write_analog_output(bool channel, int voltage);
+        void write_motors_voltage(int voltageM1, int voltageM2);
 };
 
 

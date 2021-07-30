@@ -129,6 +129,7 @@ int Beckhoff_Communication_Service::beckhoff_connect()
             }
 	    // SUCCESS
 	    remota.connected = true; //conected
+		cout << "Beckhoff connected successfully! "<< endl;
         cout << "Slave configured successfully! "<< endl;
 	    //check the status of the slave and define it as operatiol, if it is non-operational 
 	    ec_group[currentgroup].docheckstate = FALSE;
@@ -266,34 +267,58 @@ bool Beckhoff_Communication_Service::beckhoff_disconnect()
 // saves
 //
 //
-bool Beckhoff_Communication_Service::read_digital_input(int pin)
+bool Beckhoff_Communication_Service::read_digital_input(int pinAddr)
 {   // work better to reduce this method
     // apply software pattern too
 
-    //
+    //realiza a leitura de todos os pinos de entrada digitais
     wkc = ec_receive_processdata(EC_TIMEOUTRET);
 
+	/*Aponta para o primeiro byte de uma palavra de 2 bytes
+	que guarda o nível lógico de cada um dos 16 pinos de entrada lidos.
+	O Pino 1 de Input digital é representado pelo bit menos significativo 
+	do primeiro byte, portanto, seu endereço é igual a 0 */ 
     uint8 *inputPtr = ec_slave[remota.terminalPositionIn].inputs;
 
-    if(pin > 7){ //addrs 8 to 15 means pins 9 to 16 at beckhoff
-	if(pin == 8){
-		pin = 0;
-	}
-	else{
-		pin = (pin % 9) + 1;
-	}
+	/*Se o pino for maior que 8, reinicia a contagem dos pinos:
+	atribui o valor 0 ao endereço do pino 9, 1 ao endereço do pino 10 e assim por diante..
+	Pois o ponteiro é incrementado para ler o segundo byte e,
+	no segundo byte, o pino 9 é representado pelo bit menos significativo, como
+	O pino 9 tem inicialmente o endereço igual a 8, a verficação abaixo fica como "if (pin > 7)" para verificar se trata-se do pino 9*/
+   
+	// Pinagem das Inputs digitais da Beckhoff:  		   |1 ... 8|9 ...16|
+	// Endereço atribuido aos pinos de Input: (pinAddr)    |0 ... 7|8 ...15|
+	// Leitura dos níveis lógicos dos pinos:  (*inputPtr)  | byte1 | byte2 |
+	// Bits, nos bytes lidos, refentes aos pinos: 		   |0 ... 7|0 ... 7|
+	// Ponteiro:                                  			^inputPtr
+	//																^inputPtr++
+   
+    if(pinAddr > 7){ //addrs 8 to 15 means pins 9 to 16 at beckhoff
+		if(pinAddr == 8){
+			pinAddr = 0;
+		}
+		else{
+			pinAddr = (pinAddr % 9) + 1;
+		}
         inputPtr++; // increments inputPtr to next byte
     }
 
+	//o inteiro de 8 bits sem sinal beckhoffPinsValue recebe o conteúdo do ponteiro inputPtr
     unsigned char beckhoffPinsValue = (unsigned char) *inputPtr; //convert *inputPtr from int to unsigned char
-
-    unsigned char mask = pow(2,(pin));
-
-    // b'00010100 = 5
-    // b'00000100 = 1
-    // b'00000100 = 4
+	 
+	/*cria máscara de bits que atribui o valor 1 no endereço do pino que se deseja ler 
+	e o valor 0 nos demais endereços. Exemplo:
+	Endereço do pino 1 = 0, então, máscara do pino 1 = b'00000001
+    Endereço do pino 4 = 3, então, máscara do pino 4 = b'00001000
+	*/
+    unsigned char mask = pow(2,(pinAddr));
 	
-    //verify logic operation and return true or false
+    /*Realiza a operação lógica AND entre o byte lido e a máscara de bits:
+	Se o byte lido contiver o valor 1 na posição correspondente ao pino que se deseja ler,
+	então, esta operação lógica irá resultar na própria máscara de bits. Nesse caso, retorna-se true.
+	Caso o byte lido contiver o valor 0 na posição correspondente ao pino que se deseja ler,
+	então, esta operação lógica irá resultar no valor 0. Nesse caso, retorna-se falso.
+	*/
     if ((beckhoffPinsValue & mask) == mask){
     	return true;
     }
@@ -304,16 +329,14 @@ bool Beckhoff_Communication_Service::read_digital_input(int pin)
 //
 // params: ? slaveIntAddress and value or int to be written?
 // return: true if success
-void Beckhoff_Communication_Service::write_digital_output(int pin, bool signal)
+void Beckhoff_Communication_Service::write_digital_output(int pinAddr, bool signal)
 {
     uint8 mask;
 
 	//de 0 até 7: pino 1 ao pino 8 da el2809*/
-	if(pin < 8){
-		mask = pow(2,(pin)); //seta o bit referente ao pino e zera os demais
+	if(pinAddr < 8){
+		mask = pow(2,(pinAddr)); //seta o bit referente ao pino e zera os demais
 
-		//cout<< +mask << endl;
-		//cout<< 255 - mask <<endl;
 		if (signal == 0){ //deseja envial sinal lógico baixo para um pino específico
 
 			//operação lógica AND
@@ -326,16 +349,28 @@ void Beckhoff_Communication_Service::write_digital_output(int pin, bool signal)
 		}
 	}
 	else{//de 8 até 15: pino 9 ao pino 16 da el2809*/
-		if(pin == 8){ //Reinicia contagem dos pinos
-			pin = 0;
+
+	/*Se o pino for maior que 8, reinicia a contagem dos pinos:
+	atribui o valor 0 ao endereço do pino 9, 1 ao endereço do pino 10 e assim por diante..
+	Pois o ponteiro é incrementado para ler o segundo byte e,
+	no segundo byte, o pino 9 é representado pelo bit menos significativo, como
+	O pino 9 tem inicialmente o endereço igual a 8.*/
+   
+	// Pinagem das Outputs digitais da Beckhoff:  		   |1 ... 8|9 ...16|
+	// Endereço atribuido aos pinos de Output: (pinAddr)   |0 ... 7|8 ...15|
+	// Escrita dos níveis lógicos dos pinos:  (*data_ptr)  | byteA | byteB |
+	// Bits, nos bytes escritos, refentes aos pinos:	   |0 ... 7|0 ... 7|
+	// Ponteiro:                                  			^data_ptr
+	//																^data_ptr++
+
+		if(pinAddr == 8){ //Reinicia contagem dos pinos
+			pinAddr = 0;
 		}else{
-			pin = (pin % 9) + 1;
+			pinAddr = (pinAddr % 9) + 1;
 		}
 
-		mask = pow(2,(pin));
+		mask = pow(2,(pinAddr));
 
-		//cout<< +mask << endl;
-		//cout<< 255 - mask <<endl;
 		if (signal == 0){ //deseja envial sinal lógico baixo para um pino específico
 			
 			//operação lógica AND
@@ -349,6 +384,7 @@ void Beckhoff_Communication_Service::write_digital_output(int pin, bool signal)
 		}
 	}
 	
+	//Aponta para a estrutura de dados que irá enviar os valores de outputs desejados
 	uint8 *data_ptr = ec_slave[remota.terminalPositionOut].outputs;
 	*data_ptr = remota.byteOutputA;
 	data_ptr++;
@@ -356,6 +392,8 @@ void Beckhoff_Communication_Service::write_digital_output(int pin, bool signal)
 	ec_send_processdata(); // enviando o dado para o IOmap (remota)
 }
 
+//Método para escrever em uma saída analógica por vez
+/*
 void Beckhoff_Communication_Service::write_analog_output(bool channel, int voltage){
 //void Beckhoff_Communication_service::writes_motors_voltage(int voltageM1, int voltageM2){
 	//garante tensão entre 0 e 24v
@@ -366,13 +404,13 @@ void Beckhoff_Communication_Service::write_analog_output(bool channel, int volta
 	
 	/*Se a resolução for de 12 bits:
 	Valores variam de 0 a 4095
-	 24[v] * x = 4095  => x = 170.625*/
+	 24[v] * x = 4095  => x = 170.625//
 	uint16 voltage16 = voltage * 170.625;
 
 	//cout << tensao16 << endl;
 	/*Se a resolução for de 16 bits:
 	Valores variam de 0 a 65535
-	24[v] * x = 65535  => x = 2730.625*/
+	24[v] * x = 65535  => x = 2730.625//
    	//__uint16_t tensao16 = tensao * 2730.625;
 	
 	//aponta para estrutura de dados que diz respeito aos terminais de saída analógica
@@ -386,15 +424,68 @@ void Beckhoff_Communication_Service::write_analog_output(bool channel, int volta
 	Motor do pino 2: canal 1
 	Como cada motor recebe dois bytes como referência para a tensão,
 	Deve-se incrementar o ponteiro em dois bytes quando se desejar escrever no canal 2, já que os 4 bytes referentes aos valores de ambos motores são adjacentes
-	*/
+	//
 	data_ptr += channel* 2;
-	cout << data_ptr << endl;
 
 	*data_ptr = voltage16; //escreve 8 bits menos significativos
 	//cout << +*data_ptr << endl;
 	data_ptr++;
 	*data_ptr = (voltage16 >> 8); //shift à direita para escrever 8 bits mais significativos
 	//cout << +*data_ptr << endl;
+    ec_send_processdata(); // enviando o dado para o IOmap (remota)
+	
+}*/
+
+void Beckhoff_Communication_Service::write_motors_voltage(int voltageM1, int voltageM2){
+	//Verificar qual é o motor da direita e qual é o motor da esquerda e alterar nome do parâmetro. Ex.:
+	//voltageM1 = voltageMotorLeft
+	
+	//garante tensão entre 0 e 24v
+	if(voltageM1 > 24)
+		voltageM1 = 24;
+	else if (voltageM1 < 0)
+		voltageM1 = 0;
+
+	if(voltageM2 > 24)
+		voltageM2 = 24;
+	else if (voltageM2 < 0)
+		voltageM2 = 0;
+
+	// |   voltage M1  |   voltage M2  |
+	// | byte1 | byte2 | byte3 | byte4 | 
+	//  ^data_ptr
+	
+	//aponta para estrutura de dados que deve receber os sinais dos terminais de saída analógica
+	uint8 *data_ptr = ec_slave[remota.terminalPositionAnalog].outputs; //Aponta para o byte 1
+	
+	//---------Escrevendo tensão do motor M1-------------------
+	/*Se a resolução for de 12 bits:
+	Valores variam de 0 a 4095
+	 24[v] * x = 4095  => x = 170.625*/
+	uint16 voltage16 = voltageM1 * 170.625; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
+
+	/*Se a resolução for de 16 bits:
+	Valores variam de 0 a 65535
+	24[v] * x = 65535  => x = 2730.625*/
+   	//__uint16_t tensao16 = tensao * 2730.625;
+
+	*data_ptr = voltage16; //escreve 8 bits menos significativos no byte 1
+	data_ptr++; //Aponta para o byte 2
+	*data_ptr = (voltage16 >> 8); //shift à direita para escrever 8 bits mais significativos no byte 2
+
+	/*
+	Como cada motor recebe dois bytes como referência para a tensão,
+	Deve-se incrementar o ponteiro em dois bytes quando se desejar escrever no motor M2, 
+	já que os 4 bytes referentes aos valores de ambos motores são adjacentes
+	*/
+	//---------Escrevendo tensão do motor M2----------------------
+	data_ptr ++; //Apontando para o byte 3
+	voltage16 = voltageM2 * 170.625; //converte tensão de 0 a 24v em um numero de 0 a 4095 correspondente
+	
+	*data_ptr = voltage16; //escreve 8 bits menos significativos no byte 3
+	data_ptr++; //Apontando para o byte 4
+	*data_ptr = (voltage16 >> 8); //shift à direita para escrever 8 bits mais significativos no byte 4
+
     ec_send_processdata(); // enviando o dado para o IOmap (remota)
 	
 }

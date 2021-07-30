@@ -47,3 +47,9 @@ bool Facade_Beckhoff_Communication_Service::read_digital_input(int pin){
 void Facade_Beckhoff_Communication_Service::write_digital_output(int pin, bool signal){
     return beckhoffService->write_digital_output(pin, signal);
 }
+//
+//
+//
+void Facade_Beckhoff_Communication_Service::write_motors_voltage(int voltageM1, int voltageM2){
+    return beckhoffService->write_motors_voltage(voltageM1, voltageM2);
+}

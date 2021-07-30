@@ -39,7 +39,11 @@ class Facade_Beckhoff_Communication_Service
         //
         //
         void write_digital_output(int pin, bool signal);
-
+        
+        //
+        //
+        //
+        void write_motors_voltage(int voltageM1, int voltageM2);
         //
         //
         //

@@ -4,7 +4,8 @@ using namespace std;
 MaintenanceSoftware::MaintenanceSoftware(){  //constructor
     beckhoffCommunication = new Facade_Beckhoff_Communication_Service;
 
-    //Setup
+    //---------------------SETUP----------------------------------------
+    //solicita conexão com a Beckhoff
     switch(beckhoffCommunication->beckhoff_connect()){ //connect and depuring
         case 1:
             cout << "Remota connected successfully \n";
@@ -27,26 +28,47 @@ MaintenanceSoftware::~MaintenanceSoftware(){ //destructor
 
 }
 
-void MaintenanceSoftware::Run(){
-    bool stopBtn;
-    //bool cameraLamp;
+void MaintenanceSoftware::Run(){ //Run in loop at Super Main
+
+    int voltageM1 = 19, //tensão do motor M1 em volts
+        voltageM2 = 19; //tensão do motor M2 em volts
     
     bool isConnected = beckhoffCommunication->verify_communication_status();
 
     if(isConnected){
-        cout << "Toradex - Beckhoff connected successfully! \n";
-        beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0); //turn off camera lamp
-        stopBtn = beckhoffCommunication->read_digital_input(IN_STOP_BTN);
+
+        beckhoffCommunication->write_digital_output(OUT_ENABLE_M1, 1); //habilita M1
+        beckhoffCommunication->write_digital_output(OUT_ENABLE_M2, 1); //habilita M2
         
-        while(stopBtn){ //Floor Camera Lamp 
+        if(beckhoffCommunication->read_digital_input(IN_STOP_BTN)){ //lê estado do botão de emergência
+            cout << "Motores devem girar em sentido horário...\n";
+            cout << "Lâmpadas devem piscar... \n";
+            //----------ACIONAENTO DOS MOTORES------------------------------------------------
+            //girar ambos os motores no sentido horário*, *verificar se a rotação será horária ou anti horária
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, 0);
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, 0);
+            beckhoffCommunication->write_motors_voltage(voltageM1, voltageM2);
+
+            //----------PISCA LAMPADA DA CAMERA------------------------------------------------
             beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 1);
             sleep(1); //delay 1s
             beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0);
             sleep(1); //delay 1s
-            stopBtn = beckhoffCommunication->read_digital_input(IN_STOP_BTN);
+            
         }
-        if(!stopBtn){ //turn off camera Lamp
+        else{ 
+            cout << "Motores devem girar em sentido anti horário... \n";
+            cout << "Lâmpadas devem estar desligadas... \n";
+
+            //----------ACIONAENTO DOS MOTORES-------------------------------------------------
+            //girar ambos os motores no sentido anti horário*, *verificar se a rotação será horária ou anti horária
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, 1);
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, 1);
+            beckhoffCommunication->write_motors_voltage(voltageM1, voltageM2);
+
+            //turn off camera Lamp
             beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0);
+            sleep(1); //delay 1s
         }
     }else{
         cout << "ERROR: Toradex - Beckhoff is not connected! \n";
