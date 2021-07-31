@@ -2,6 +2,10 @@
 // Mapping of Input Pins and Remote Digital Output
 // to be used by all software that make use of communication service with Beckhoff
 
+//Digital signal reference
+#define LOW 0
+#define HIGH 1
+
 // EL1809 - Digital Inputs Module
 // assigns pin from the EL1809 module to the position of the corresponding bit 
 #define IN_PHOTOELTRIC_SENSOR_1 0 //Sensor Fotoeletrico 1 - PINO 1

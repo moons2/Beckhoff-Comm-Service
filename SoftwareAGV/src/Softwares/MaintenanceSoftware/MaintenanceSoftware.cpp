@@ -37,22 +37,22 @@ void MaintenanceSoftware::Run(){ //Run in loop at Super Main
 
     if(isConnected){
 
-        beckhoffCommunication->write_digital_output(OUT_ENABLE_M1, 1); //habilita M1
-        beckhoffCommunication->write_digital_output(OUT_ENABLE_M2, 1); //habilita M2
+        beckhoffCommunication->write_digital_output(OUT_ENABLE_M1, HIGH); //habilita M1
+        beckhoffCommunication->write_digital_output(OUT_ENABLE_M2, HIGH); //habilita M2
         
         if(beckhoffCommunication->read_digital_input(IN_STOP_BTN)){ //lê estado do botão de emergência
             cout << "Motores devem girar em sentido horário...\n";
             cout << "Lâmpadas devem piscar... \n";
             //----------ACIONAENTO DOS MOTORES------------------------------------------------
             //girar ambos os motores no sentido horário*, *verificar se a rotação será horária ou anti horária
-            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, 0);
-            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, 0);
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, LOW);
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, LOW);
             beckhoffCommunication->write_engines_voltage(speedPercentageM1, speedPercentageM2);
 
             //----------PISCA LAMPADA DA CAMERA------------------------------------------------
-            beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 1);
+            beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, HIGH);
             sleep(1); //delay 1s
-            beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0);
+            beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, LOW);
             sleep(1); //delay 1s
             
         }
@@ -62,12 +62,12 @@ void MaintenanceSoftware::Run(){ //Run in loop at Super Main
 
             //----------ACIONAENTO DOS MOTORES-------------------------------------------------
             //girar ambos os motores no sentido anti horário*, *verificar se a rotação será horária ou anti horária
-            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, 1);
-            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, 1);
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M1, HIGH);
+            beckhoffCommunication->write_digital_output(OUT_DIRECTION_M2, HIGH);
             beckhoffCommunication->write_engines_voltage(speedPercentageM1, speedPercentageM2);
 
             //turn off camera Lamp
-            beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, 0);
+            beckhoffCommunication->write_digital_output(OUT_CAMERA_LAMP, LOW);
             sleep(1); //delay 1s
         }
     }else{
